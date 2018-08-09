@@ -1,0 +1,39 @@
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: elk
+  labels:
+    app: elk-kibana
+  name: elk-kibana
+spec:
+  type: NodePort
+  ports:
+    - name: business
+      port: 5601
+      targetPort: 5601
+  selector:
+    app: elk-kibana
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: elk
+  name: elk-kibana
+  labels:
+    app: elk-kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elk-kibana
+  template:
+    metadata:
+      labels:
+        app: elk-kibana
+    spec:
+      containers:
+      - name: kibana
+        image: 144.202.127.156/library/kibana:5.3.3
+        ports:
+        - containerPort: 5601
+          protocol: TCP

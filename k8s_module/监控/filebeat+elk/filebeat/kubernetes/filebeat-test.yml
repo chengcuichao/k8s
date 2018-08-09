@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+data:
+  filebeat.yml: |
+    filebeat.prospectors:
+    - input_type: log
+      paths:
+        - /log/access.log
+    document_type: nginx_access
+    output.logstash:
+      hosts: ["elk-logstash.elk.svc.cluster.local:5044"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: filebeat-test
+  labels:
+    app: filebeat-test
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: filebeat-test
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: filebeat-test
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: filebeat-test
+    spec:
+      containers:
+      - image: 144.202.127.156/library/filebeat:5.3.3
+        name: filebeat
+        volumeMounts:
+        - name: app-logs
+          mountPath: /log
+        - name: filebeat-config
+          mountPath: /etc/filebeat/
+      - image: 144.202.127.156/library/nginx:1.12
+        name : app
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: app-logs
+          mountPath: /var/log/nginx
+      volumes:
+      - name: app-logs
+        emptyDir: {}
+      - name: filebeat-config
+        configMap:
+          name: filebeat-config

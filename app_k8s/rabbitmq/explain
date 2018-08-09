@@ -1,0 +1,5 @@
+1、镜像用的是docker现成的镜像：
+rabbitmq:3.6.6-management-alpine
+
+3、直接创建：
+kubectl create -f rabbitmq.yml

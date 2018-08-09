@@ -1,0 +1,109 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-core
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: core
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: prometheus-main
+      labels:
+        app: prometheus
+        component: core
+    spec:
+      serviceAccountName: prometheus-k8s
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v1.7.0
+        args:
+          - '-storage.local.retention=240h'
+          - '-storage.local.memory-chunks=500000'
+          - '-config.file=/etc/prometheus/prometheus.yaml'
+          - '-alertmanager.url=http://alertmanager:9093/'
+        ports:
+        - name: webui
+          containerPort: 9090
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1G
+          limits:
+            cpu: 1
+            memory: 2G
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/prometheus
+        - name: rules-volume
+          mountPath: /etc/prometheus-rules
+        - name: prometheus-data
+          mountPath: /prometheus/data
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-core
+      - name: rules-volume
+        configMap:
+          name: prometheus-rules
+      - name: prometheus-data
+        persistentVolumeClaim:
+          claimName: prometheus
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana-core
+  namespace: monitoring
+  labels:
+    app: grafana
+    component: core
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+        component: core
+    spec:
+      containers:
+      - image: grafana/grafana:4.2.0
+        name: grafana-core
+        imagePullPolicy: IfNotPresent
+        # env:
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 300Mi
+        env:
+          # The following env variables set up basic auth twith the default admin user and admin password.
+          - name: GF_AUTH_BASIC_ENABLED
+            value: "true"
+          - name: GF_AUTH_ANONYMOUS_ENABLED
+            value: "false"
+          # - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+          #   value: Admin
+          # does not really work, because of template variables in exported dashboards:
+          # - name: GF_DASHBOARDS_JSON_ENABLED
+          #   value: "true"
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: 3000
+          # initialDelaySeconds: 30
+          # timeoutSeconds: 1
+        volumeMounts:
+        - name: grafana-storage
+          mountPath: /var
+      volumes:
+      - name: grafana-storage
+        persistentVolumeClaim:
+          claimName: grafana

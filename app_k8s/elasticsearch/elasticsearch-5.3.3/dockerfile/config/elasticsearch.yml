@@ -1,0 +1,10 @@
+cluster.name: elastic-cluster
+node.name: node-1
+path.data: /usr/local/elasticsearch-5.3.3/data
+path.logs: /usr/local/elasticsearch-5.3.3/logs
+network.host: 0.0.0.0
+http.port: 9200
+discovery.zen.ping.unicast.hosts: ["elk-es"]
+discovery.zen.minimum_master_nodes: 2
+http.cors.enabled: true
+http.cors.allow-origin: "*"

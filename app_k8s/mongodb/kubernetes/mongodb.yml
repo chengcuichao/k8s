@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: basic-app
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: basic-app
+  name: ceph-secret
+type: "kubernetes.io/rbd"
+data:
+  key: QVFEYmVRTmJZQ1B4TFJBQUg0QS9Tb01NZjF6NHB3L0p1Y3ZUQnc9PQ==
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: basic-app
+  name: mongo-key
+type: Opaque
+data:
+  key: UERVU0hWVU9KT1ZQVUVYT0JXWU8=
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-config
+  namespace: basic-app
+data:
+  mongodb: |
+    systemLog:
+      destination: file
+      path: "/var/log/mongodb/mongodb.log"
+      logAppend: true
+    processManagement:
+      fork: false
+    net:
+      port: 27017
+      bindIp: 0.0.0.0
+    security:
+      keyFile: "/etc/conf.d/secret-key/key"
+      authorization: enabled
+    storage:
+      dbPath: /var/lib/mongodb
+    setParameter:
+      enableLocalhostAuthBypass: true
+      authenticationMechanisms: SCRAM-SHA-1
+  mongos: |
+    MONGOS_EXEC="/usr/bin/mongos"
+    MONGOS_RUN="/var/run/mongodb"
+    MONGOS_USER="mongodb"
+    MONGOS_IP="127.0.0.1"
+    MONGOS_PORT="27018"
+    MONGOS_CONFIGDB=""
+    MONGOS_OPTIONS=""
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: basic-app
+  labels:
+    name: mongo
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+  selector:
+    app: mongo-cluster
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: basic-app
+spec:
+  serviceName: mongodb
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: mongo-cluster
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mongod
+        image: 144.202.127.156/library/mongodb:3.6.5
+        command: ["sh", "-c", "chmod 600 -R /etc/conf.d/secret-key;numactl --interleave=all mongod -f /etc/conf.d/mongodb --auth --replSet icsoc"]
+        resources:
+          limits:
+            cpu: 2
+            memory: 2G
+          requests:
+            cpu: 1
+            memory: 1G
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /var/lib/mongodb
+        - name: mongo-config
+          mountPath: /etc/conf.d
+        - name: timezone-config
+          mountPath: /etc/localtime
+        - name: secret-key
+          mountPath: /etc/conf.d/secret-key
+        ports:
+        - containerPort: 27017
+        livenessProbe:
+          tcpSocket:
+            port: 27017
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+      - name: mongo-config
+        configMap:
+          name: mongodb-config
+      - name: timezone-config
+        hostPath:
+          path: /usr/share/zoneinfo/Asia/Shanghai
+      - name: secret-key
+        secret:
+          secretName: mongo-key
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-data
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "ceph-db"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 50Gi

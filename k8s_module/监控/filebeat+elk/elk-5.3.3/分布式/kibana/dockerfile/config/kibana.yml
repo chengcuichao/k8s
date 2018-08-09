@@ -1,0 +1,6 @@
+server.port: 5601
+server.host: "0.0.0.0"
+kibana.index: ".kibana"
+elasticsearch.url: "http://elk-es:9200"
+
+

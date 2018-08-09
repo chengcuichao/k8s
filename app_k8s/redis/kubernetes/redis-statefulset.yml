@@ -1,0 +1,38 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  serviceName: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: redis
+        replicaset: icsoc
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: redis-container
+        image: 10.168.1.200/library/redis:4.0
+        volumeMounts:
+        - name: redis-data
+          mountPath: /var/lib/redis
+        - name: redis-config
+          mountPath: /etc/conf.d
+        ports:
+        - containerPort: 6379
+      volumes:
+      - name: redis-config
+        configMap:
+          name: redisconfig
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "ceph-web"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Gi

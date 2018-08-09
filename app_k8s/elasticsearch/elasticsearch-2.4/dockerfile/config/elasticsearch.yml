@@ -1,0 +1,9 @@
+cluster.name: icsoc
+node.name: node-1
+path.data: /usr/local/elasticsearch-2.4.6/data
+path.logs: /usr/local/elasticsearch-2.4.6/logs
+ES_HEAP_SIZE: 2g
+network.host: 0.0.0.0
+http.port: 9200
+discovery.zen.ping.unicast.hosts: ["elasticsearch"]
+discovery.zen.minimum_master_nodes: 2

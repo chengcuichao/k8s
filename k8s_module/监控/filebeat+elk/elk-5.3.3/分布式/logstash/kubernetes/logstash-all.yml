@@ -1,0 +1,49 @@
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: elk
+  labels:
+    app: elk-logstash
+  name: elk-logstash
+spec:
+  type: NodePort
+  ports:
+    - name: business
+      port: 5044
+      targetPort: 5044
+  selector:
+    app: elk-logstash
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: elk
+  name: elk-logstash
+  labels:
+    app: elk-logstash
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: elk-logstash
+  template:
+    metadata:
+      labels:
+        app: elk-logstash
+    spec:
+      containers:
+      - name: logstash
+        image: 144.202.127.156/library/logstash:5.3.3
+        volumeMounts:
+        - name: logstash-config
+          mountPath: /etc/logstash
+        ports:
+        - containerPort: 5044
+          protocol: TCP
+      imagePullSecrets:
+      - name: regsecret
+      volumes:
+      - name: logstash-config
+        configMap:
+          name: logstashconfig

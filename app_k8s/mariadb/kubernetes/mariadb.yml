@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: basic-app
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: mysql
+  name: ceph-secret
+type: "kubernetes.io/rbd"
+data:
+  key: QVFEYmVRTmJZQ1B4TFJBQUg0QS9Tb01NZjF6NHB3L0p1Y3ZUQnc9PQ==
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: basic-app
+spec:
+  ports:
+  - port: 3306
+    name: mysql
+  selector:
+    app: mariadb
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mariadb
+  namespace: basic-app
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  serviceName: "mariadb"
+  replicas: 1
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: mariadb
+        image: mariadb
+        ports:
+        - containerPort: 3306
+          name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "mariadb-pwd"
+        volumeMounts:
+        - name: mysql
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "ceph-db"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 200Gi

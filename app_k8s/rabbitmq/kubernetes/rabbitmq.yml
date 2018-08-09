@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-management
+  namespace: basic-app
+  labels:
+    app: rabbitmq
+spec:
+  ports:
+  - port: 15672
+    name: http
+  selector:
+    app: rabbitmq
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # The required headless service for StatefulSets
+  namespace: basic-app
+  name: rabbitmq
+  labels:
+    app: rabbitmq
+spec:
+  ports:
+  - port: 5672
+    name: amqp
+  - port: 4369
+    name: epmd
+  - port: 25672
+    name: rabbitmq-dist
+  selector:
+    app: rabbitmq
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: basic-app
+  name: rabbit-cookie
+type: Opaque
+data:
+  cookie: UERVU0hWVU9KT1ZQVUVYT0JXWU8=
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  namespace: basic-app
+  name: rabbitmq
+spec:
+  serviceName: "rabbitmq"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.6.6-management-alpine
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+          requests:
+            cpu: 400m
+            memory: 300Mi
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - >
+                if [ -z "$(grep rabbitmq /etc/resolv.conf)" ]; then
+                  sed "s/^search \([^ ]\+\)/search rabbitmq.\1 \1/" /etc/resolv.conf > /etc/resolv.conf.new;
+                  cat /etc/resolv.conf.new > /etc/resolv.conf;
+                  rm /etc/resolv.conf.new;
+                fi;
+                if [ `grep -o 'rabbitmq*' /var/lib/rabbitmq/mnesia/rabbit@$HOSTNAME/cluster_nodes.config |wc -l` -lt 3 ]; then
+                  until rabbitmqctl node_health_check; do sleep 1; done;
+                  if [[ "$HOSTNAME" != "rabbitmq-0" && -z "$(rabbitmqctl cluster_status | grep rabbitmq-0)" ]]; then
+                    rabbitmqctl stop_app;
+                    rabbitmqctl join_cluster rabbit@rabbitmq-0;
+                    rabbitmqctl start_app;
+                  fi;
+                  rabbitmqctl set_policy ha-all "." '{"ha-mode":"exactly","ha-params":3,"ha-sync-mode":"automatic"}'
+                fi;
+        env:
+        - name: RABBITMQ_ERLANG_COOKIE
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-cookie
+              key: cookie
+        ports:
+        - containerPort: 5672
+          name: amqp
+        livenessProbe:
+          tcpSocket:
+            port: 5672
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        volumeMounts:
+        - name: rabbitmq-run
+          mountPath: /var/lib/rabbitmq
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-run
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "ceph-db"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 50Gi

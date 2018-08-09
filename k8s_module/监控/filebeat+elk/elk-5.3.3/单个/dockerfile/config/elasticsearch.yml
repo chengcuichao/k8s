@@ -1,0 +1,6 @@
+cluster.name: elk
+node.name: elatic-1
+path.data: /usr/local/elasticsearch-5.3.3/data
+path.logs: /usr/local/elasticsearch-5.3.3/logs
+network.host: 127.0.0.1
+http.port: 9200

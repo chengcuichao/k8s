@@ -1,0 +1,8 @@
+1、先生成docker镜像：
+cd ./dockerfile  && docker build -t 144.202.127.156/library/elasticsearch:2. .
+
+2、将镜像上传至harbor镜像仓库：
+dcoekr push 144.202.127.156/library/elasticsearch:2.
+
+3、在k8s上创建service和statefulset等（前提已经创建好存储类）：
+cd ./kubernetes && kubectl create -f .

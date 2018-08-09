@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  namespace: elk
+data:
+  logstash.config: |
+    input { stdin { } }
+    output {
+            elasticsearch { hosts => ["elk-es:9200"]}
+            stdout { codec => rubydebug }
+    }
+  nginx.config: |
+    input {beats  {port => 5044}}
+    filter {if [type]  == "nginx_access"  {
+                json {source => "message"}}
+    }
+    output {elasticsearch {
+                hosts => ["elk-es:9200"]
+                index => "nginx_access_%{+YYYY.MM.dd}"}
+    }
+  error.config: |
+    input {beats  {port => 5044}}
+    filter {if [type]  == "nginx_reeor"  {
+            json {source => "message"}}
+    }
+    output {elasticsearch {
+                hosts => ["elk-es:9200"]
+                index => "nginx_error_%{+YYYY.MM.dd}"}
+    }
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstashconfig
+  namespace: elk
+data:
+  logstash.config: |
+    input { stdin { } }
+    output {
+            elasticsearch { hosts => ["elk-es:9200"]}
+            stdout { codec => rubydebug }
+    }
+  bill-service-log.conf: |
+    input {beats  {port => 5044}}
+    filter {if [fields][document_type]  == "bill-access-log"  {
+                json {source => "message"}
+            }
+            else if [fields][document_type]  == "bill-error-log" {
+                json {source => "message"}
+            }
+    }
+    output {if [fields][document_type]  == "bill-access-log"  {
+               elasticsearch {
+                  hosts => ["elk-es:9200"]
+                  index => "bill_access_%{+YYYY.MM.dd}"}
+            }
+            else if [fields][document_type]  == "bill-error-log" {
+               elasticsearch {
+                  hosts => ["elk-es:9200"]
+                  index => "bill_error_%{+YYYY.MM.dd}"}
+            }
+    }

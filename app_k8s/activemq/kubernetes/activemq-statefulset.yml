@@ -1,0 +1,33 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: activemq
+spec:
+  serviceName: activemq
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: activemq
+        replicaset: icsoc
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: activemq-container
+        image: 10.168.1.200/library/activemq:5.15.3
+        volumeMounts:
+        - name: activemq-data
+          mountPath: /usr/local/apache-activemq-5.15.3/data
+        ports:
+        - containerPort: 61612
+        - containerPort: 8161
+  volumeClaimTemplates:
+  - metadata:
+      name: activemq-data
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "ceph-web"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Gi

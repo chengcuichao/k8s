@@ -4,6 +4,8 @@ docker build -t 144.202.127.156/library/mongodb:3.4.10 .
 2、将镜像上传至harbor镜像仓库：
 docker push 144.202.127.156/library/mongodb:3.4.10
 
+
+
 3、在k8s上创建service和statefulset（前提已经创建好存储类）：
 kubectl create -f mongodb.yml
 
@@ -35,4 +37,3 @@ db.createUser(
   }
 )
 db.auth("myUserAdmin","P@ssw0rd")
-echo never > /sys/kernel/mm/transparent_hugepage/enabled && echo never > /sys/kernel/mm/transparent_hugepage/defrag (在镜像里执行)

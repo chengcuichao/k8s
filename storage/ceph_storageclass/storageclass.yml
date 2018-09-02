@@ -4,10 +4,10 @@ metadata:
    name: ceph-db
 provisioner: kubernetes.io/rbd
 parameters:
-  monitors: 10.168.1.121:6789
+  monitors: 192.168.78.110:6789
   adminId: admin
   adminSecretName: ceph-secret
   adminSecretNamespace: default
-  pool: rbd
+  pool: k8s
   userId: admin
   userSecretName: ceph-secret

@@ -26,3 +26,24 @@ kubectl create -f nginx-ingress.yml
             app: ingress-nginx
 
       由于是本地创建就用externalIPs
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+spec:
+  externalIPs:
+  - 192.168.78.1
+  - 192.168.78.3
+  - 192.168.78.4
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  selector:
+    app: ingress-nginx

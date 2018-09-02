@@ -10,7 +10,7 @@ metadata:
   name: ceph-secret
 type: "kubernetes.io/rbd"
 data:
-  key: QVFEYmVRTmJZQ1B4TFJBQUg0QS9Tb01NZjF6NHB3L0p1Y3ZUQnc9PQ==
+  key: QVFDVWdZcGJ1QVRWS0JBQWZPeDNlNWFIM1A0T3Z1T1l6M2prYWc9PQ==
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -202,4 +202,4 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 50Gi
+          storage: 200Gi

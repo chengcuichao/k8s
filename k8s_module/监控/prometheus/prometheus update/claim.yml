@@ -9,7 +9,7 @@ spec:
   storageClassName: ceph-db
   resources:
     requests:
-      storage: 300G
+      storage: 200G
 
 ---
 kind: PersistentVolumeClaim
@@ -23,4 +23,4 @@ spec:
   storageClassName: ceph-db
   resources:
     requests:
-      storage: 300G
+      storage: 200G

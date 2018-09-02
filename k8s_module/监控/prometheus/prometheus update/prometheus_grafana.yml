@@ -2548,7 +2548,7 @@ spec:
       - name: prometheus
         image: prom/prometheus:v1.7.0
         args:
-          - '-storage.local.retention=720h'
+          - '-storage.local.retention=48h'
           - '-storage.local.memory-chunks=500000'
           - '-config.file=/etc/prometheus/prometheus.yaml'
           - '-alertmanager.url=http://alertmanager:9093/'

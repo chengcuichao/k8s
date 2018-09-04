@@ -38,7 +38,7 @@ data:
       port: 27017
       bindIp: 0.0.0.0
     security:
-      keyFile: "/etc/conf.d/secret-key/key"
+      keyFile: "/etc/secret-key"
       authorization: enabled
     storage:
       dbPath: /var/lib/mongodb
@@ -86,7 +86,9 @@ spec:
       containers:
       - name: mongod
         image: 144.202.127.156/library/mongodb:3.6.5
-        command: ["sh", "-c", "chmod 600 -R /etc/conf.d/secret-key;numactl --interleave=all mongod -f /etc/conf.d/mongodb --auth --replSet icsoc"]
+        command: ['sh', '-c', 'echo "$MONGODB_KEYFILE" >> /etc/secret-key;
+                             chmod 600 /etc/secret-key;
+                             numactl --interleave=all mongod -f /etc/conf.d/mongodb --auth --replSet icsoc']
         resources:
           limits:
             cpu: 2
@@ -101,8 +103,12 @@ spec:
           mountPath: /etc/conf.d
         - name: timezone-config
           mountPath: /etc/localtime
-        - name: secret-key
-          mountPath: /etc/conf.d/secret-key
+        env:
+        - name: MONGODB_KEYFILE
+          valueFrom:
+            secretKeyRef:
+              name: mongo-key
+              key: key
         ports:
         - containerPort: 27017
         livenessProbe:
@@ -117,9 +123,6 @@ spec:
       - name: timezone-config
         hostPath:
           path: /usr/share/zoneinfo/Asia/Shanghai
-      - name: secret-key
-        secret:
-          secretName: mongo-key
   volumeClaimTemplates:
   - metadata:
       name: mongodb-data

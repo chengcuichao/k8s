@@ -5,7 +5,7 @@ metadata:
   name: ceph-secret
 type: "kubernetes.io/rbd"
 data:
-  key: QVFDVWdZcGJ1QVRWS0JBQWZPeDNlNWFIM1A0T3Z1T1l6M2prYWc9PQ==
+  key: QVFDVWdZcGJ1QVRWS0JBQWZPeDNlNWFIM1A0T3Z1 T1l6M2prYWc9PQ==
 ---
 apiVersion: v1
 kind: Service

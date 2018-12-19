@@ -1,0 +1,12 @@
+logpath=/var/log/mongodb/mongodb.log
+logappend=true
+fork = false
+port = 27017
+dbpath=/var/lib/mongodb
+cpu = true
+noauth = true
+verbose = true
+quota = true
+diaglog=0
+nohttpinterface = true
+replSet=icsoc

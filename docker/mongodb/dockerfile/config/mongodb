@@ -1,12 +1,16 @@
-logpath=/var/log/mongodb/mongodb.log
-logappend=true
-fork = false
-port = 27017
-dbpath=/var/lib/mongodb
-cpu = true
-noauth = true
-verbose = true
-quota = true
-diaglog=0
-nohttpinterface = true
-replSet=icsoc
+systemLog:
+  destination: file
+  path: "/var/lib/mongodb/log/mongodb.log"
+  logAppend: true
+processManagement:
+  fork: false
+net:
+  port: 27017
+  bindIp: 0.0.0.0
+security:
+  authorization: enabled
+storage:
+  dbPath: /var/lib/mongodb/data
+setParameter:
+  enableLocalhostAuthBypass: true
+  authenticationMechanisms: SCRAM-SHA-1

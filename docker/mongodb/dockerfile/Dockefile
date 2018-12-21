@@ -1,12 +1,17 @@
 #由于修改/sys/kernel/mm/transparent_hugepage下的文件会出错所以用特权模式启动docker镜像把文件修改好，生成一个镜像：
 
-FROM  alpine-alter:3.7
+FROM  alpine:3.8
 MAINTAINER chengcuichao
 #RUN  echo never > /sys/kernel/mm/transparent_hugepage/enabled && echo never > /sys/kernel/mm/transparent_hugepage/defrag （在新启的镜像执行）
-RUN apk update && apk add --no-cache mongodb
-COPY run.sh  /root/
-RUN chmod +x /root/run.sh
+RUN apk update && \
+    apk add --no-cache mongodb shadow sudo && \
+    useradd mongo && \
+    mkdir /var/lib/mongodb/config && \
+    mkdir /var/lib/mongodb/log && \
+    mkdir /var/lib/mongodb/data
 
-CMD /root/run.sh
-#CMD mongod  --wiredTigerCacheSizeGB 0.25  --bind_ip 0.0.0.0 --replSet icsoc
+COPY config/mongodb /var/lib/mongodb/config/
 
+RUN chown -R mongo:mongo  /var/lib/mongodb
+
+CMD sudo -H -u mongo mongod  -f /var/lib/mongodb/config/mongodb  --bind_ip 0.0.0.0 --setParameter enableLocalhostAuthBypass=true

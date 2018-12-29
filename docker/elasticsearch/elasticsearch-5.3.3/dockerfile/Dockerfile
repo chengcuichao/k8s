@@ -5,6 +5,7 @@ RUN apk update &&  \
     apk add --no-cache openjdk8 shadow sudo && \
     wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.3.tar.gz && \
     tar zxvf elasticsearch-5.3.3.tar.gz -C /usr/local/  && \
+    mv /usr/local/elasticsearch-5.3.3 /usr/local/elasticsearch && \
     useradd elastic && \
     chown -R elastic:elastic  /usr/local/elasticsearch-5.3.3 && \
     rm -f  elasticsearch-5.3.3.tar.gz

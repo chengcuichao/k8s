@@ -1,0 +1,2 @@
+INSERT INTO `est_config` (`sms_signature`, `phone_ifrepeat`, `login_wizard`, `order_product_amount`, `deal_other_client`, `change_dept_dealData`, `connect_type`, `use_custom_menu`, `client_amount`) VALUES
+('公司名称', 0, 0, 2, 1, 1, 'sock', 0, 0);

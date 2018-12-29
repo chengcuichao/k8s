@@ -1,0 +1,2 @@
+ALTER TABLE est_knowledge_category MODIFY COLUMN participant text NOT NULL DEFAULT '' COMMENT '查看权限的人员';
+ALTER TABLE est_remind MODIFY COLUMN rmd_param_int BIGINT NOT NULL DEFAULT 0 COMMENT '参数1(int型参数)';

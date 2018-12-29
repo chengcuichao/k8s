@@ -1,0 +1,20 @@
+CREATE TABLE `est_form_fields` (
+  `field_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '表单字段id',
+  `form_id` int(11) NOT NULL COMMENT '表单id',
+  `fields` varchar(50) NOT NULL DEFAULT '' COMMENT '字段',
+  `field_name` varchar(50) NOT NULL DEFAULT '' COMMENT '字段名称',
+  `field_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '字段类型 0输入框1文本框2多选框3单选框4下拉框5级联框6日期框7附件框8姓名9手机10电话11性别12地址',
+  `field_if_must` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否必填 0否1是',
+  `default_value` varchar(150) NOT NULL DEFAULT '' COMMENT '默认值',
+  `option_type` varchar(10) NOT NULL DEFAULT '' COMMENT '选项设置方式 custom自定义 database数据库',
+  `table` varchar(10) NOT NULL DEFAULT '' COMMENT '数据库表',
+  `option_value` varchar(10) NOT NULL DEFAULT '' COMMENT '值字段名',
+  `option_text` varchar(10) NOT NULL DEFAULT '' COMMENT '文本字段名',
+  `parent_value` varchar(10) NOT NULL DEFAULT '' COMMENT '父值字段名(级联)',
+  `parent_table` varchar(10) NOT NULL DEFAULT '' COMMENT '父数据库表(级联)',
+  `parent_table_value` varchar(10) NOT NULL DEFAULT '' COMMENT '父表字段名(级联)',
+  `series` tinyint(1) NOT NULL DEFAULT '0' COMMENT '级数(级联) 0默认  2两级 3三级',
+  `datefmt` varchar(30) NOT NULL DEFAULT '' COMMENT '日期框日期格式',
+  `usessq` tinyint(1) DEFAULT NULL COMMENT '是否使用省市区级联 0否 1是',
+  PRIMARY KEY (`field_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='表单字段表'

@@ -1,0 +1,13 @@
+ALTER TABLE `est_users` CHANGE `client_list_display` `client_list_display` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '2,4,10,18,16' COMMENT '客户排序';
+ALTER TABLE `est_users` CHANGE `contact_list_display` `contact_list_display` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '38,39,40' COMMENT '联系人排序';
+ALTER TABLE `est_users` CHANGE `resource_list_display` `resource_list_display` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '2,4,10,18,16' COMMENT '资源排序';
+ALTER TABLE `est_users` CHANGE `product_list_display` `product_list_display` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '52,53,54,55' COMMENT '产品列表显示';
+ALTER TABLE `est_users` CHANGE `datadeal_list_display` `datadeal_list_display` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '2,4,10,18,16' COMMENT '数据处理列表显示';
+ALTER TABLE `est_users` CHANGE `order_list_display` `order_list_display` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '70,71,72,74,75' COMMENT '订单列表显示';
+ALTER TABLE `est_users` CHANGE `service_list_display` `service_list_display` VARCHAR(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '79,80,81,85,86,90' COMMENT '客服服务列表显示';
+alter table est_quality_task add COLUMN `score` int(5) NOT NULL default 0 COMMENT '总得分';
+alter table est_quality_item add COLUMN `score` int(5) NOT NULL default 0 COMMENT '满分';
+alter table est_quality_task_item add COLUMN `score` int(5) NOT NULL default 0 COMMENT '得分';
+alter table est_quality_task_item MODIFY column result int(1) default 2 comment '1=>YES,0=>NO,2默认值';
+drop view  if EXISTS info_view;
+create view info_view as SELECT `a`.`quality_task_id` AS `quality_task_id`,group_concat(concat(`i`.`is_important`,'-',`a`.`quality_item_id`,'-',`a`.`result`) SEPARATOR ',') AS `info` FROM `est_quality_task_item` `a` LEFT JOIN est_quality_item i on a.quality_item_id = i.id GROUP BY `a`.`quality_task_id`;

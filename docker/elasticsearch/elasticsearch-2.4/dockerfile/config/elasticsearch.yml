@@ -1,7 +1,7 @@
 cluster.name: icsoc
 node.name: node-1
-path.data: /usr/local/elasticsearch-2.4.6/data
-path.logs: /usr/local/elasticsearch-2.4.6/logs
+path.data: /usr/local/elasticsearch/data
+path.logs: /usr/local/elasticsearch/logs
 ES_HEAP_SIZE: 2g
 network.host: 0.0.0.0
 http.port: 9200

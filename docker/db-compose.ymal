@@ -1,0 +1,76 @@
+version: '3'
+services:
+  mongo:
+    image: bitnami/mongodb:4.1
+    restart: always
+    networks: ["icsoc-network"]
+    hostname: mongo
+    container_name: mongo
+    ports:
+    - "27017:27017"
+    restart: always
+    volumes:
+    - /data/db/mongo:/bitnami/mongodb/data/db
+    environment:
+    - MONGODB_USERNAME=admin
+    - MONGODB_PASSWORD=passw0rd
+    - MONGODB_DATABASE=ticket
+  redis:
+    image: registry.cn-beijing.aliyuncs.com/icsoc-soft/redis-cluster:3.2.8
+    networks: ["icsoc-network"]
+    hostname: redis
+    container_name: redis
+    ports:
+    - "6379:6379"
+    restart: always
+    environment:
+    - PASSWORD=hn2ife0epZlV
+    volumes:
+    - /data/db/redis:/var/lib/redis/6379
+
+  es:
+    image: elastic:2.4.6
+    networks: ["icsoc-network"]
+    hostname: elastic
+    container_name: elastic
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+    restart: always
+    volumes:
+    - /data/db/elastic:/usr/local/elasticsearch-2.4.6/
+
+  mysql:
+    image: registry.cn-beijing.aliyuncs.com/icsoc-soft/mysql-cluster:5.7
+    networks: ["icsoc-network"]
+    hostname: mysql
+    container_name: mysql
+    ports:
+    - "3306:3306"
+    restart: always
+    environment:
+    - MYSQL_USER=icsoc
+    - MYSQL_PASSWORD=hn2ife0epZlV
+    - MYSQL_DATABASE=cti
+    volumes:
+    - /data/db/mysql:/var/lib/mysql/data
+
+  rabbitmq:
+    image: registry.cn-beijing.aliyuncs.com/icsoc-soft/rabbitmq-cluster:3.6.16
+    networks: ["icsoc-network"]
+    hostname: rabbitmq
+    container_name: rabbitmq
+    ports:
+    - "5672:5672"
+    - "15672:15672"
+    restart: always
+    environment:
+    - RABBITMQ_DEFAULT_USER=guest
+    - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+    - /data/db/rabbitmq:/var/lib/rabbitmq/mnesia
+
+networks:
+  icsoc-network:
+    external:
+      name: icsoc-network

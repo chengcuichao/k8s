@@ -1,0 +1,1 @@
+insert into est_tab_config(pagename,pagelocation,editable,pagetype,sort)values('会话记录',2,0,1,100);
